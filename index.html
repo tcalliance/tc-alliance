@@ -7,6 +7,24 @@
     <meta name="description" content="TC Alliance, club de tennis à Anderlecht depuis 1957. Réservez un terrain, inscrivez-vous et rejoignez notre communauté.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Meta Pixel Code -->
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '1511233817091586');
+    fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=1511233817091586&ev=PageView&noscript=1"/></noscript>
+    <!-- End Meta Pixel Code -->
+
     <style>
         :root {
             --navy: #1a2744;
@@ -458,6 +476,49 @@
             .app-banner { display: block; }
         }
 
+        /* PROMO BANNER (shown to Meta ad visitors) */
+        .promo-banner {
+            display: none;
+            background: linear-gradient(135deg, var(--green), #22c55e);
+            color: var(--white);
+            text-align: center;
+            padding: 12px 24px;
+            font-size: 15px;
+            font-weight: 600;
+            position: fixed;
+            top: 64px;
+            left: 0;
+            right: 0;
+            z-index: 99;
+            box-shadow: 0 2px 8px rgba(0,0,0,.15);
+        }
+        .promo-banner.show { display: block; }
+        .promo-banner a {
+            color: var(--white);
+            text-decoration: underline;
+            font-weight: 700;
+            margin-left: 8px;
+        }
+        .promo-banner a:hover { opacity: .9; }
+        .promo-banner-close {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 20px;
+            cursor: pointer;
+            opacity: .8;
+        }
+        .promo-banner-close:hover { opacity: 1; }
+        body.has-promo { scroll-padding-top: 120px; }
+        body.has-promo .hero { padding-top: 180px; }
+        @media (max-width: 768px) {
+            body.has-promo .hero { padding-top: 160px; }
+        }
+
         /* SMOOTH SCROLL */
         html { scroll-behavior: smooth; scroll-padding-top: 80px; }
 
@@ -473,6 +534,13 @@
     </style>
 </head>
 <body>
+
+<!-- PROMO BANNER (visible only for Meta ad visitors via ?utm_source=meta) -->
+<div class="promo-banner" id="promo-banner">
+    🎾 Inscriptions saison 2026 ouvertes — Adulte dès 130 €/saison
+    <a href="https://my.big-captain.com/site/tc-alliance/home" target="_blank" onclick="trackInscription()">S'inscrire maintenant →</a>
+    <button class="promo-banner-close" onclick="closePromoBanner()" aria-label="Fermer">×</button>
+</div>
 
 <!-- NAV -->
 <nav>
@@ -803,6 +871,35 @@
 
 <!-- SCRIPTS -->
 <script>
+    // Meta Pixel conversion tracking — track clicks to BigCaptain as "Lead" event
+    function trackInscription() {
+        if (typeof fbq === 'function') {
+            fbq('track', 'Lead', { content_name: 'inscription_bigcaptain' });
+        }
+    }
+
+    // Add tracking to ALL BigCaptain links on the page
+    document.addEventListener('click', function(e) {
+        var link = e.target.closest('a[href*="big-captain.com"]');
+        if (link) {
+            trackInscription();
+        }
+    });
+
+    // Promo banner logic — show only for Meta ad visitors
+    function showPromoBanner() {
+        var params = new URLSearchParams(window.location.search);
+        if (params.get('utm_source') === 'meta' || params.get('utm_source') === 'facebook' || params.get('utm_source') === 'instagram') {
+            document.getElementById('promo-banner').classList.add('show');
+            document.body.classList.add('has-promo');
+        }
+    }
+    function closePromoBanner() {
+        document.getElementById('promo-banner').classList.remove('show');
+        document.body.classList.remove('has-promo');
+    }
+    showPromoBanner();
+
     document.addEventListener('DOMContentLoaded', () => {
         // Close mobile menu on link click
         document.querySelectorAll('.nav-links a').forEach(a => {
